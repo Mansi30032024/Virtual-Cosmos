@@ -17,8 +17,8 @@ function User({ user, isMe, isNearby, id }) {
     <div
       style={{
         position: "absolute",
-        left: user.x,
-        top: user.y,
+        left: user?.x ?? 0,
+        top: user?.y ?? 0,
         textAlign: "center",
       }}
     >
