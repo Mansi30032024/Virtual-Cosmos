@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { socket } from "../socket";
 import User from "./User";
 import Chat from "./Chat";
@@ -16,6 +16,11 @@ function Cosmos() {
   const [pos, setPos] = useState({ x: 300, y: 200 });
   const [users, setUsers] = useState({});
 
+  const nearbySound = useRef(new Audio("/ding.mp3"));      // user nearby
+  const messageSound = useRef(new Audio("/message.mp3"));  // message received
+  const prevNearbyRef = useRef(false);                     // track previous nearby status
+
+  // Movement
   useEffect(() => {
     const handleKey = (e) => {
       setPos((prev) => {
@@ -27,42 +32,59 @@ function Cosmos() {
         return p;
       });
     };
-
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, []);
 
+  // Send position to server
   useEffect(() => {
     socket.emit("move", pos);
   }, [pos]);
 
+  // Receive all users
   useEffect(() => {
     const handler = (data) => setUsers(data);
     socket.on("updateUsers", handler);
     return () => socket.off("updateUsers", handler);
   }, []);
 
-  const nearby = Object.entries(users).filter(([id, u]) => {
-    if (id === socket.id) return false;
-    return getDistance(pos, u) < RADIUS;
-  });
+  // Play ding sound when a user enters nearby radius
+  useEffect(() => {
+    const nearby = Object.entries(users).some(
+      ([id, u]) => id !== socket.id && getDistance(pos, u) < RADIUS
+    );
 
-  const isConnected = nearby.length > 0;
+    if (nearby && !prevNearbyRef.current) {
+      nearbySound.current.currentTime = 0;
+      nearbySound.current.play().catch(() => {});
+    }
+
+    prevNearbyRef.current = nearby; // update ref, no state update needed
+  }, [users, pos]);
+
+  // Play message sound when a message is received
+  useEffect(() => {
+    const handleMessage = (msg) => {
+      if (!msg || typeof msg !== "object") return;
+      if (typeof msg.text !== "string") return;
+
+      messageSound.current.currentTime = 0;
+      messageSound.current.play().catch(() => {});
+    };
+    socket.on("receiveMessage", handleMessage);
+    return () => socket.off("receiveMessage", handleMessage);
+  }, []);
+
+  // Compute if chat should show
+  const isNearbyUser = Object.entries(users).some(
+    ([id, u]) => id !== socket.id && getDistance(pos, u) < RADIUS
+  );
 
   return (
     <div style={styles.container}>
-      
-      {/* HEADER */}
-      <div style={styles.header}>
-        ⚙️
-        <div>🌌 Virtual Cosmos</div>
-        <div>📞 🔊</div>
-      </div>
-
-      {/* GRID */}
+      <div style={styles.header}>🌌 Virtual Cosmos</div>
       <div style={styles.grid} />
 
-      {/* RADIUS */}
       {socket.id && (
         <div
           style={{
@@ -73,7 +95,6 @@ function Cosmos() {
         />
       )}
 
-      {/* USERS */}
       {Object.entries(users).map(([id, user]) => (
         <User
           key={id}
@@ -84,12 +105,9 @@ function Cosmos() {
         />
       ))}
 
-      <Chat isConnected={isConnected} />
+      <Chat isConnected={isNearbyUser} />
 
-      {/* FOOTER */}
-      <div style={styles.footer}>
-        Move with arrow keys 🚀 | Come close to chat 💬
-      </div>
+      <div style={styles.footer}>Move with arrow keys 🚀</div>
     </div>
   );
 }
@@ -100,7 +118,6 @@ const styles = {
     height: "100vh",
     background: "radial-gradient(circle, #0f172a, #020617)",
     position: "relative",
-    overflow: "hidden",
   },
   header: {
     position: "absolute",
@@ -108,10 +125,10 @@ const styles = {
     width: "100%",
     height: 60,
     display: "flex",
-    justifyContent: "space-between",
     alignItems: "center",
-    padding: "0 20px",
+    justifyContent: "center",
     color: "white",
+    fontSize: 20,
     background: "rgba(0,0,0,0.5)",
   },
   grid: {
@@ -124,11 +141,11 @@ const styles = {
   },
   radius: {
     position: "absolute",
-    width: 150,
-    height: 150,
+    width: RADIUS,
+    height: RADIUS,
     borderRadius: "50%",
-    border: "2px dashed #22c55e",
-    opacity: 0.3,
+    border: "3px dashed #22c55e",
+    opacity: 0.4,
   },
   footer: {
     position: "absolute",

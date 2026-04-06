@@ -1,80 +1,55 @@
+
 import { useEffect, useState } from "react";
 import { socket } from "../socket";
 
 function Chat({ isConnected }) {
-  const [msg, setMsg] = useState("");
   const [messages, setMessages] = useState([]);
+  const [text, setText] = useState("");
 
   useEffect(() => {
-    socket.on("receiveMessage", (data) => {
-      setMessages((prev) => [...prev, data]);
-    });
+    const handleMessage = (msg) => {
+      if (!msg || typeof msg !== "object") return;
+      if (typeof msg.text !== "string") return;
 
-    return () => socket.off("receiveMessage");
+      setMessages((prev) => [...prev, msg]);
+    };
+
+    socket.on("receiveMessage", handleMessage);
+    return () => socket.off("receiveMessage", handleMessage);
   }, []);
 
-  const send = () => {
-    if (!msg.trim()) return;
+  const sendMessage = () => {
+    if (!text.trim()) return;
+    const msg = { text: text, sender: socket.id };
     socket.emit("sendMessage", msg);
-    setMsg("");
+    setMessages((prev) => [...prev, msg]);
+    setText("");
   };
 
-  // ✅ ENTER KEY SUPPORT
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      send();
-    }
-  };
-
-  if (!isConnected) return null;
+  if (!isConnected) return null; // Only show chat if a nearby user
 
   return (
-    <div style={styles.container}>
-      
-      {/* HEADER */}
-      <div style={styles.header}>
-        💬 Nearby Chat
-      </div>
+    <div style={styles.chatBox}>
+      <div style={styles.header}>💬 Lets Connect!</div>
 
-      {/* MESSAGES */}
       <div style={styles.messages}>
-        <div style={styles.welcome}>
-          Welcome to Virtual Cosmos 🌌
-        </div>
-
-        {messages.map((m, i) => {
-          const isMe = m.id === socket.id;
-          return (
-            <div
-              key={i}
-              style={{
-                ...styles.message,
-                alignSelf: isMe ? "flex-end" : "flex-start",
-                background: isMe ? "#22c55e" : "#e5e7eb",
-                color: isMe ? "white" : "black",
-              }}
-            >
-              {!isMe && (
-                <div style={styles.username}>
-                  {m.id.slice(0, 4)}
-                </div>
-              )}
-              {m.text}
-            </div>
-          );
-        })}
+        {messages.map((m, i) => (
+          <div key={i} style={styles.msg}>
+            <b>{m.sender === socket.id ? "You" : "User"}:</b> {String(m.text)}
+          </div>
+        ))}
       </div>
 
-      {/* INPUT */}
-      <div style={styles.inputBox}>
+      <div style={styles.inputRow}>
         <input
-          value={msg}
-          onChange={(e) => setMsg(e.target.value)}
-          onKeyDown={handleKeyDown} // ✅ ENTER
+          value={text}
+          onChange={(e) => setText(e.target.value)}
           placeholder="Type message..."
           style={styles.input}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
         />
-        <button onClick={send} style={styles.button}>
+
+        <button onClick={sendMessage} style={styles.button}>
           ➤
         </button>
       </div>
@@ -83,84 +58,22 @@ function Chat({ isConnected }) {
 }
 
 const styles = {
-  container: {
+  chatBox: {
     position: "absolute",
     right: 0,
     top: 60,
-    width: 380, // slightly bigger
-    height: "calc(100% - 60px)",
-    background: "rgba(255,255,255,0.98)",
+    width: 420,
+    height: "calc(100% - 100px)",
+    background: "white",
     display: "flex",
     flexDirection: "column",
-    borderLeft: "2px solid #ddd",
-    boxShadow: "-4px 0 12px rgba(0,0,0,0.2)",
-    zIndex: 10,
   },
-
-  header: {
-    padding: "14px",
-    fontWeight: "bold",
-    fontSize: 18, // bigger
-    borderBottom: "1px solid #ddd",
-    background: "#f9fafb",
-  },
-
-  messages: {
-    flex: 1,
-    display: "flex",
-    flexDirection: "column",
-    padding: 12,
-    gap: 10,
-    overflowY: "auto",
-  },
-
-  welcome: {
-    fontSize: 14,
-    color: "#888",
-    textAlign: "center",
-  },
-
-  message: {
-    maxWidth: "75%",
-    padding: "10px 14px",
-    borderRadius: 14,
-    fontSize: 16, // ✅ BIGGER TEXT
-    lineHeight: "1.4",
-    wordBreak: "break-word",
-  },
-
-  username: {
-    fontSize: 12, // bigger username
-    fontWeight: "bold",
-    marginBottom: 3,
-    opacity: 0.7,
-  },
-
-  inputBox: {
-    display: "flex",
-    padding: 12,
-    borderTop: "1px solid #ddd",
-    gap: 10,
-  },
-
-  input: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 20,
-    border: "1px solid #ccc",
-    fontSize: 15,
-    outline: "none",
-  },
-
-  button: {
-    padding: "0 18px",
-    borderRadius: "50%",
-    border: "none",
-    background: "#22c55e",
-    color: "white",
-    fontSize: 18,
-    cursor: "pointer",
-  },
+  header: { padding: 15, fontSize: 18, fontWeight: "bold", borderBottom: "1px solid #ddd" },
+  messages: { flex: 1, overflowY: "auto", padding: 15, fontSize: 18 },
+  msg: { marginBottom: 12 },
+  inputRow: { display: "flex", borderTop: "1px solid #ddd" },
+  input: { flex: 1, padding: 15, fontSize: 16, border: "none", outline: "none" },
+  button: { padding: "0 20px", fontSize: 20, background: "#22c55e", color: "white", border: "none", cursor: "pointer" },
 };
 
 export default Chat;
