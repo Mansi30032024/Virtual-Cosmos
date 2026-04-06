@@ -1,4 +1,4 @@
-<img width="322" height="545" alt="image" src="https://github.com/user-attachments/assets/3458fa30-abe8-462b-96f2-a5fa860c0cf7" />🌌 Virtual Cosmos
+🌌 Virtual Cosmos
 
 A real-time interactive virtual space where users move around and communicate with nearby users using proximity-based chat and sound notifications.
 
@@ -54,8 +54,6 @@ This project demonstrates real-time communication, spatial interaction, proximit
 ## Project Structure
 
 <img width="322" height="545" alt="Screenshot 2026-04-06 122445" src="https://github.com/user-attachments/assets/f8968385-5a7e-4f67-933b-390f08d7cc6d" />
-![Screenshot 2026-04-06 122445](https://github.com/user-attachments/assets/f8968385-5a7e-4f67-933b-390f08d7cc6d)
-
 
 
 ## Installation & Setup
