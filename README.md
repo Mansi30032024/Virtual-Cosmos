@@ -1,129 +1,105 @@
-🌌 Virtual Cosmos
+# Orbit Office
 
-A real-time interactive virtual space where users move around and communicate with nearby users using proximity-based chat and sound notifications.
+Orbit Office is a real-time remote office simulation built with React, Node.js, Express, and Socket.IO.
+Users join with a tab-specific display name, move around a shared office, and chat in collaboration-friendly spaces.
 
-Virtual Cosmos is a multiplayer web application simulating a shared digital environment. Users navigate freely using keyboard controls, and when they come close to other users, they can interact through a real-time chat system.
+## What It Does
 
-This project demonstrates real-time communication, spatial interaction, proximity logic, sound alerts, and modern UI design using web technologies.
+- Shared multiplayer office with live movement updates
+- Login screen with per-tab profile names
+- Three office zones:
+  - `Work Studio` for focused work
+  - `Conference Suite` for team collaboration
+  - `Break Lounge` for casual conversation
+- Chat enabled in collaboration spaces only
+- Real-time presence and messaging with Socket.IO
+- Generated avatars and light office-style UI
 
-## Features
-• Real-time movement using arrow keys
-• Multiple users connected simultaneously
-• Proximity-based interaction (radius detection)
-• Real-time chat system (enabled only for nearby users)
-• Sound notifications:
-   ding.mp3 → triggers when a user enters your radius
-   message.mp3 → triggers when a new message is received
-• Visual indicators: glowing border for nearby users
-• Clean and modern UI
-• Instant updates using Socket.io (WebSockets)
- 
-## How It Works
-• Each user is assigned a position (x, y) in a shared space.
-• Movement is handled using keyboard arrow keys.
-• The frontend continuously sends updated positions to the server.
-• The server broadcasts all user positions to every connected client.
-• Distance between users is calculated.
-• If users are within a defined radius:
-• Chat is enabled
-• Visual indicators are shown
-   ding.mp3 plays once when a user enters
-• Messages are sent using Socket.io and displayed in real-time, with message.mp3 alerts.
-
-
-#### Tech Stack
-
-## Frontend
-
-‣ React (Vite)
-‣ JavaScript
-‣ CSS (inline styling)
-‣ Audio API for sound notifications
-
-## Backend
-
-‣ Node.js
-‣ Express
-‣ Socket.io
-
-## Deployment
-
-◉ Frontend: Netlify / Vercel
-◉ Backend: Render
- 
 ## Project Structure
 
-<img width="322" height="545" alt="Screenshot 2026-04-06 122445" src="https://github.com/user-attachments/assets/f8968385-5a7e-4f67-933b-390f08d7cc6d" />
+```text
+Virtual-Cosmos/
+  client/
+    cosmos-v/
+      src/
+        components/
+          Chat.jsx
+          Cosmos.jsx
+          User.jsx
+        App.jsx
+        socket.js
+      public/
+      package.json
+  server/
+    index.js
+    package.json
+  README.md
+```
 
+## Tech Stack
 
-## Installation & Setup
+- Frontend: React, Vite
+- Backend: Node.js, Express, Socket.IO
+- Realtime: Socket.IO client/server
 
-1. Clone the repository
-    git clone https://github.com/Mansi30032024/Virtual-Cosmos.git
-    cd Virtual-Cosmos
-2. Setup Backend
-    cd server
-    npm install
-    node index.js
+## Run Locally
 
-Server runs on:
-http://localhost:PORT
+### Server
 
-◉ Use process.env.PORT when deploying on Render.
+```powershell
+cd server
+npm install
+node index.js
+```
 
-3. Setup Frontend
-    cd client/cosmos-v
-    npm install
-    npm run dev
+The server uses `PORT` from `server/.env` and defaults to `5000`.
 
-## Frontend runs on:
-   http://localhost:PORT2
+### Client
 
-◉ Ensure your socket.js points to the backend deployed URL when running on Netlify/Vercel:
+```powershell
+cd client/cosmos-v
+npm install
+npm run dev
+```
 
-import { io } from "socket.io-client";
-export const socket = io("https://your-backend.onrender.com");
+The current frontend socket connection is configured in `client/cosmos-v/src/socket.js`.
 
-## How to Use
+## Current Office Behavior
 
-▪ Open the app in two or more browser tabs
-▪ Move users using arrow keys
-▪ Bring users close to each other
-▪ Chat panel appears automatically
-▪ Send messages in real-time
-▪ Listen for sounds: ding for nearby users, message for chat
+1. Open the app in one or more browser tabs.
+2. Enter a display name on the login screen.
+3. Move with the arrow keys.
+4. Chat is available in:
+   - `Conference Suite`
+   - `Break Lounge`
+5. `Work Studio` stays a quiet zone.
 
-## Deployment
+## Notes
 
-Backend (Render)
- Deploy server using Node environment
- Make sure .env contains the PORT variable
+- Names are stored in `sessionStorage`, so each browser tab can act as a different person.
+- The server keeps user positions in memory.
+- There is no persistent database yet.
 
-Frontend (Netlify / Vercel)
-  Build the frontend
-  Ensure socket.js uses the backend URL
-  
-## ****Live Link****
-https://virtual-cosmos.netlify.app/
-  
-## Key Highlights
-▪ Real-time synchronization using WebSockets
-▪ Spatial interaction logic using distance calculation
-▪ Sound notifications for chat and proximity
-▪ Clean UI with responsive layout
-▪ Scalable architecture
+## Scripts
 
-## Future Improvements
-▪ Voice calling using WebRTC
-▪ Animated background (stars, particles)
-▪ Usernames, profiles, and avatars
-▪ Mobile responsiveness
-▪ Map boundaries and collision detection
+### Client
 
+```powershell
+npm run dev
+npm run build
+npm run lint
+npm run preview
+```
 
-#### Author
+### Server
 
-Mansi Arora
-B.E. CSE Student
+```powershell
+node index.js
+```
 
-⭐ If you like this project, feel free to star the repository!
+## Future Ideas
+
+- Seat snapping and smarter collision spacing
+- Private rooms or team rooms
+- Click-to-move navigation
+- Status indicators like `Available`, `Busy`, and `In Meeting`

@@ -1,16 +1,33 @@
-# React + Vite
+# Orbit Office Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the Vite + React frontend for Orbit Office.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Login screen with tab-specific display names
+- Shared office map with live user movement
+- Zone-based chat UI
+- Generated avatars
+- Responsive office layout scaling
 
-## React Compiler
+## Main Files
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- `src/App.jsx`: login flow and app entry
+- `src/components/Cosmos.jsx`: office map, movement, zones, layout
+- `src/components/Chat.jsx`: zone chat panel
+- `src/components/User.jsx`: avatar and user rendering
+- `src/socket.js`: Socket.IO client connection
 
-## Expanding the ESLint configuration
+## Scripts
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```powershell
+npm run dev
+npm run build
+npm run lint
+npm run preview
+```
+
+## Development Notes
+
+- User names are stored in `sessionStorage` so each tab can use a different identity.
+- The frontend currently connects to the deployed backend URL configured in `src/socket.js`.
